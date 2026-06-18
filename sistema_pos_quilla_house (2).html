@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quilla House - Sistema de Facturación Multi-Sede</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .restaurant-title {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Custom scrollbars para tema claro */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printReceiptArea, #printReceiptArea * {
+                visibility: visible;
+            }
+            #printReceiptArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-100/90 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+            <div class="text-center mb-6">
+                <!-- Brand logo dynamically integrated with fallback -->
+                <div class="mx-auto mb-4 relative w-32 h-32 flex items-center justify-center bg-slate-50 rounded-2xl p-2 border border-slate-100">
+                    <img src="image_908008.png" alt="Quilla House Logo" class="max-w-full max-h-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/128x128/f59e0b/ffffff?text=Quilla+House'">
+                </div>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase restaurant-title">QUILLA HOUSE</h1>
+                <p class="text-[10px] text-amber-600 font-extrabold uppercase tracking-wider mt-1.5">#ElFoodTrailerDelVerdaderoSabor</p>
+                <div class="h-[1px] bg-slate-100 my-4"></div>
+                <p class="text-xs text-slate-500">Selecciona tu perfil de acceso para ingresar al sistema de facturación.</p>
+            </div>
+
+            <!-- Profile Cards Selectors -->
+            <div class="space-y-3">
+                <button onclick="selectProfile('arboleda')" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-teal-500/50 p-3 rounded-xl flex items-center justify-between transition group">
+                    <div class="flex items-center space-x-3 text-left">
+                        <span class="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center text-sm border border-teal-100 group-hover:bg-teal-500 group-hover:text-white transition duration-300">
+                            <i class="fa-solid fa-truck"></i>
+                        </span>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">Sede Arboleda</h4>
+                            <p class="text-[10px] text-slate-500 font-medium">Sede Food Trailer (Rápidas)</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] bg-white border border-slate-200 text-slate-500 px-2 py-1 rounded-md font-mono">PIN: 1111</span>
+                </button>
+
+                <button onclick="selectProfile('rincon')" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-rose-500/50 p-3 rounded-xl flex items-center justify-between transition group">
+                    <div class="flex items-center space-x-3 text-left">
+                        <span class="w-10 h-10 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 group-hover:bg-rose-500 group-hover:text-white transition duration-300">
+                            <i class="fa-solid fa-store"></i>
+                        </span>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">Sede Rincón</h4>
+                            <p class="text-[10px] text-slate-500 font-medium">Sede Local (Parrilla y Mar)</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] bg-white border border-slate-200 text-slate-500 px-2 py-1 rounded-md font-mono">PIN: 2222</span>
+                </button>
+
+                <button onclick="selectProfile('admin')" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-amber-500/50 p-3 rounded-xl flex items-center justify-between transition group">
+                    <div class="flex items-center space-x-3 text-left">
+                        <span class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm border border-amber-100 group-hover:bg-amber-500 group-hover:text-white transition duration-300">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </span>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">Administrador</h4>
+                            <p class="text-[10px] text-slate-500 font-medium">Métricas & Auditoría General</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] bg-white border border-slate-200 text-slate-500 px-2 py-1 rounded-md font-mono">PIN: 9999</span>
+                </button>
+            </div>
+
+            <!-- Hidden PIN Input Form -->
+            <div id="pin-pad-area" class="hidden mt-6 pt-5 border-t border-slate-100 animate-fade-in">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider" id="pin-label-title">Ingresa PIN</label>
+                    <button onclick="cancelPinSelection()" class="text-[10px] text-rose-500 hover:underline font-bold">Cancelar</button>
+                </div>
+                <div class="relative">
+                    <input type="password" id="pin-input" maxlength="4" placeholder="••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-center font-mono text-xl tracking-widest text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white transition-colors">
+                    <div class="mt-3 grid grid-cols-4 gap-2">
+                        <button onclick="appendPin('1')" class="bg-slate-50 hover:bg-slate-100 py-2.5 rounded-lg text-sm font-bold border border-slate-200 text-slate-700">1</button>
+                        <button onclick="appendPin('2')" class="bg-slate-50 hover:bg-slate-100 py-2.5 rounded-lg text-sm font-bold border border-slate-200 text-slate-700">2</button>
+                        <button onclick="appendPin('3')" class="bg-slate-50 hover:bg-slate-100 py-2.5 rounded-lg text-sm font-bold border border-slate-200 text-slate-700">3</button>
+                        <button onclick="appendPin('4')" class="bg-slate-50 hover:bg-slate-100 py-2.5 rounded-lg text-sm font-bold border border-slate-200 text-slate-700">4</button>
+                        <button onclick="appendPin('5')" class="bg-slate-50 hover:bg-slate-100 py-2.5 rounded-lg text-sm font-bold border border-slate-200 text-slate-700">5</button>
+                        <button onclick="appendPin('6')" class="bg-slate-50 hover:bg-slate-100 py-2.5 rounded-lg text-sm font-bold border border-slate-200 text-slate-700">6</button>
+                        <button onclick="appendPin('7')" class="bg-slate-50 hover:bg-slate-100 py-2.5 rounded-lg text-sm font-bold border border-slate-200 text-slate-700">7</button>
+                        <button onclick="appendPin('8')" class="bg-slate-50 hover:bg-slate-100 py-2.5 rounded-lg text-sm font-bold border border-slate-200 text-slate-700">8</button>
+                        <button onclick="appendPin('9')" class="bg-slate-50 hover:bg-slate-100 py-2.5 rounded-lg text-sm font-bold border border-slate-200 text-slate-700">9</button>
+                        <button onclick="clearPin()" class="bg-rose-50 hover:bg-rose-100 py-2.5 rounded-lg text-xs font-bold text-rose-600 border border-rose-200 col-span-1">C</button>
+                        <button onclick="appendPin('0')" class="bg-slate-50 hover:bg-slate-100 py-2.5 rounded-lg text-sm font-bold border border-slate-200 text-slate-700">0</button>
+                        <button onclick="submitPinCheck()" class="bg-amber-500 text-white hover:bg-amber-600 py-2.5 rounded-lg text-xs font-black col-span-2 shadow-md shadow-amber-500/10">ENTRAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INTERFACE HEADER -->
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-40 shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 flex items-center justify-center bg-slate-50 rounded-xl p-1 border border-slate-100">
+                <img src="image_908008.png" alt="Mini Logo" class="max-w-full max-h-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/64x64/f59e0b/ffffff?text=QH'">
+            </div>
+            <div>
+                <h1 class="text-lg font-black text-slate-900 tracking-tight leading-none restaurant-title">QUILLA HOUSE</h1>
+                <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider mt-1" id="branch-indicator-badge">Sede Arboleda (Food Trailer)</p>
+            </div>
+        </div>
+        
+        <!-- Active User Status / Logout Bar -->
+        <div class="flex items-center space-x-3 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+            <button onclick="openApiKeyModal()" class="text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50 px-2.5 py-1.5 rounded-lg transition font-bold flex items-center space-x-1.5 border border-amber-100">
+                <i class="fa-solid fa-key"></i>
+                <span class="hidden sm:inline">API Key</span>
+            </button>
+            <div class="text-right px-2">
+                <p class="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Sesión Activa</p>
+                <p class="text-xs font-bold text-slate-700" id="current-user-display-name">Operador Arboleda</p>
+            </div>
+            <div class="w-[1px] h-6 bg-slate-200"></div>
+            <button onclick="logout()" class="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg transition font-bold flex items-center space-x-1.5 border border-transparent hover:border-rose-100">
+                <i class="fa-solid fa-power-off"></i>
+                <span class="hidden sm:inline">Cerrar Sesión</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- APP CONTAINER -->
+    <main class="flex-grow p-3 sm:p-4 md:p-6 max-w-[1600px] w-full mx-auto">
+        
+        <!-- ================= SECTION 1: POINT OF SALE (POS) ================= -->
+        <div id="section-pos" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Side: Table Selector + Category Filter + Products Grid -->
+            <div class="lg:col-span-7 xl:col-span-8 flex flex-col space-y-4">
+                
+                <!-- Table Quick Select Grid -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xs font-bold tracking-wider text-slate-500 uppercase flex items-center space-x-2">
+                            <i class="fa-solid fa-chair text-amber-500"></i>
+                            <span>Seleccionar Mesa / Destino del Pedido</span>
+                        </h3>
+                        <span id="active-table-badge" class="bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">
+                            Ordenando en: Mesa 1
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-3 sm:grid-cols-9 gap-2" id="tables-container">
+                        <!-- Table Buttons (Generated via JS) -->
+                    </div>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex overflow-x-auto py-1 space-x-2" id="categories-container">
+                    <!-- Categorías dinámicas -->
+                </div>
+
+                <!-- Product Catalog Search and Grid -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-4 flex-grow flex flex-col space-y-4 min-h-[400px] shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                        <h2 class="text-base font-extrabold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-burger text-amber-500"></i>
+                            <span id="menu-title-display">Menú de Ventas</span>
+                        </h2>
+                        <!-- Search input -->
+                        <div class="relative max-w-xs w-full">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input oninput="filterProductsSearch(this.value)" type="text" placeholder="Buscar plato o bebida..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-1.5 pl-9 pr-4 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-amber-500 transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 overflow-y-auto max-h-[550px] pr-1" id="products-grid">
+                        <!-- Dynamic Product cards will render here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Order billing summary -->
+            <div class="lg:col-span-5 xl:col-span-4 flex flex-col">
+                <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between h-full sticky top-24 shadow-sm min-h-[500px]">
+                    <div>
+                        <!-- Invoice Header -->
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+                            <div>
+                                <h2 id="billing-target-title" class="text-sm font-black text-slate-800">Facturar: Mesa 1</h2>
+                                <p class="text-[10px] text-slate-500" id="billing-sede-subtitle">Sede Arboleda</p>
+                            </div>
+                            <button onclick="clearCurrentOrder()" class="text-[11px] text-rose-600 bg-rose-50 border border-rose-100 hover:bg-rose-100/60 px-2.5 py-1.5 rounded-lg transition font-semibold flex items-center space-x-1.5">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Vaciar</span>
+                            </button>
+                        </div>
+
+                        <!-- Invoice Items List -->
+                        <div class="space-y-2 overflow-y-auto max-h-[350px] pr-1" id="invoice-items-container">
+                            <!-- Items go here -->
+                        </div>
+                        
+                        <!-- Empty order template state -->
+                        <div id="empty-cart-state" class="py-12 text-center text-slate-400 space-y-3">
+                            <i class="fa-solid fa-basket-shopping text-4xl block text-slate-200 animate-bounce"></i>
+                            <p class="text-xs">No hay productos en esta cuenta todavía.<br>Haz clic en los platos de la izquierda para agregar.</p>
+                        </div>
+                    </div>
+
+                    <!-- AI Copilot Suggestion Box (Directly in Cart) -->
+                    <div id="ai-upsell-box" class="hidden mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2 text-slate-700 animate-scale-up">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-amber-700 uppercase tracking-widest flex items-center space-x-1">
+                                <i class="fa-solid fa-brain"></i>
+                                <span>Asistente de Maridaje AI</span>
+                            </span>
+                            <button onclick="hideAiUpsellBox()" class="text-slate-400 hover:text-slate-600 text-xs"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div id="ai-upsell-content" class="text-[11px] leading-relaxed italic text-slate-600">
+                            Haga clic en el botón de abajo para obtener sugerencias inteligentes de adición o bebida.
+                        </div>
+                    </div>
+
+                    <!-- Invoice Calculation Section -->
+                    <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                        
+                        <!-- Grand Total -->
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-150">
+                            <span class="text-xs font-extrabold text-slate-600 tracking-wider">TOTAL A COBRAR:</span>
+                            <span class="text-xl font-black text-slate-900" id="invoice-total">$0</span>
+                        </div>
+
+                        <!-- Actions bar -->
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button onclick="openCustomItemModal()" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition flex items-center justify-center space-x-1">
+                                <i class="fa-solid fa-plus-circle text-slate-500"></i>
+                                <span>Ítem Manual</span>
+                            </button>
+                            <button onclick="triggerPaymentModal()" class="py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs rounded-xl shadow-md shadow-emerald-500/10 transition flex items-center justify-center space-x-1">
+                                <i class="fa-solid fa-cash-register"></i>
+                                <span>Registrar Pago</span>
+                            </button>
+                        </div>
+
+                        <!-- Gemini Waiter Advisor Button -->
+                        <button onclick="getAiUpsellRecommendation()" class="w-full py-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:brightness-105 rounded-xl font-bold text-xs transition flex items-center justify-center space-x-1.5 shadow-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Sugerencia AI de Maridaje / Adicionales</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 2: ADMIN SALES & REPORT DASHBOARD ================= -->
+        <div id="section-admin" class="hidden space-y-6 animate-fade-in">
+            
+            <!-- Filter Bar for Dashboard: Date, Sede & Methods -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-2.5">
+                    <span class="bg-amber-100 text-amber-700 w-8 h-8 rounded-lg flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </span>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-700">Filtros de Auditoría</h4>
+                        <p class="text-[10px] text-slate-400">Separa tus ingresos por días y sedes</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 w-full md:w-auto">
+                    <!-- Date Selector Shortcuts -->
+                    <select onchange="updateDateShortcutFilter(this.value)" id="filter-date-shortcut" class="bg-slate-50 border border-slate-200 rounded-xl py-1.5 px-3 text-xs text-slate-700 font-semibold focus:outline-none focus:bg-white focus:border-amber-500 transition-all">
+                        <option value="today">Ventas de Hoy</option>
+                        <option value="yesterday">Ventas de Ayer</option>
+                        <option value="week">Últimos 7 Días</option>
+                        <option value="all">Todas las Fechas</option>
+                        <option value="custom">Fecha Específica</option>
+                    </select>
+                    
+                    <!-- Specific Date Input -->
+                    <input type="date" onchange="triggerCustomDateFilter()" id="filter-specific-date" class="hidden bg-slate-50 border border-slate-200 rounded-xl py-1.5 px-3 text-xs text-slate-700 focus:outline-none focus:bg-white focus:border-amber-500 transition-all">
+                    
+                    <!-- Sede Selector -->
+                    <select onchange="filterAdminDashboard()" id="filter-sede-select" class="bg-slate-50 border border-slate-200 rounded-xl py-1.5 px-3 text-xs text-slate-700 font-semibold focus:outline-none focus:bg-white focus:border-amber-500 transition-all">
+                        <option value="all">Todas las Sedes</option>
+                        <option value="1">Sede Arboleda (Food Trailer)</option>
+                        <option value="2">Sede Rincón (Local)</option>
+                    </select>
+                    
+                    <!-- Payment Selector -->
+                    <select onchange="filterAdminDashboard()" id="filter-payment-select" class="bg-slate-50 border border-slate-200 rounded-xl py-1.5 px-3 text-xs text-slate-700 font-semibold focus:outline-none focus:bg-white focus:border-amber-500 transition-all">
+                        <option value="all">Todos los Medios de Pago</option>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Nequi/Daviplata">Nequi/Daviplata</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Dashboard Quick metrics cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center justify-between shadow-sm">
+                    <div>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Facturación Filtrada</span>
+                        <h3 class="text-xl font-black text-slate-900 mt-1" id="stat-total-sales">$0</h3>
+                        <p class="text-[9px] text-slate-500 font-medium mt-1" id="stat-label-date">Hoy</p>
+                    </div>
+                    <div class="bg-amber-100 text-amber-600 w-11 h-11 rounded-xl flex items-center justify-center text-lg shadow-sm">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center justify-between shadow-sm">
+                    <div>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Sede Arboleda (Trailer)</span>
+                        <h3 class="text-xl font-black text-teal-600 mt-1" id="stat-arboleda-sales">$0</h3>
+                        <p class="text-[9px] text-slate-400 font-medium mt-1" id="stat-arboleda-percent">0% de esta selección</p>
+                    </div>
+                    <div class="bg-teal-50 text-teal-600 w-11 h-11 rounded-xl flex items-center justify-center text-lg shadow-sm">
+                        <i class="fa-solid fa-truck"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center justify-between shadow-sm">
+                    <div>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Sede Rincón (Local)</span>
+                        <h3 class="text-xl font-black text-rose-600 mt-1" id="stat-rincon-sales">$0</h3>
+                        <p class="text-[9px] text-slate-400 font-medium mt-1" id="stat-rincon-percent">0% de esta selección</p>
+                    </div>
+                    <div class="bg-rose-50 text-rose-600 w-11 h-11 rounded-xl flex items-center justify-center text-lg shadow-sm">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center justify-between shadow-sm">
+                    <div>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Transacciones</span>
+                        <h3 class="text-xl font-black text-indigo-600 mt-1" id="stat-invoice-count">0</h3>
+                        <p class="text-[9px] text-slate-400 font-medium mt-1" id="stat-avg-ticket">Ticket Prom: $0</p>
+                    </div>
+                    <div class="bg-indigo-50 text-indigo-600 w-11 h-11 rounded-xl flex items-center justify-center text-lg shadow-sm">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN GEMINI ANALYTICS MODULE -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xl">🤖</span>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Asistente AI de Negocio</h3>
+                            <p class="text-[9px] text-slate-400">Analiza tus ventas y genera promociones</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-xs">
+                        <label class="font-bold text-slate-500 block">Consultas rápidas:</label>
+                        <div class="flex flex-col gap-1.5">
+                            <button onclick="askGeminiAdmin('trend')" class="text-left w-full p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition font-medium">
+                                📊 ¿Cuál es el producto más vendido hoy y cómo incentivar más compras?
+                            </button>
+                            <button onclick="askGeminiAdmin('promo')" class="text-left w-full p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition font-medium">
+                                📣 Redactar post para redes sociales con promos para la sede con menor venta
+                            </button>
+                            <button onclick="askGeminiAdmin('performance')" class="text-left w-full p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition font-medium">
+                                📈 Comparar Arboleda vs Rincón y sugerir mejoras de rentabilidad
+                            </button>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 space-y-2">
+                        <label class="text-xs font-bold text-slate-500 block">Pregunta personalizada:</label>
+                        <textarea id="admin-custom-query" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-amber-500 transition-all" placeholder="Ej. ¿Qué estrategia recomiendas para promocionar los ceviches los jueves?"></textarea>
+                        <button onclick="askGeminiAdmin('custom')" class="w-full py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl transition flex items-center justify-center space-x-1 shadow-sm">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Consultar Asistente</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col min-h-[320px]">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-2">
+                            <i class="fa-solid fa-microchip text-amber-500"></i>
+                            <span>Reporte e Insights Generados por Inteligencia Artificial</span>
+                        </h4>
+                        <span id="ai-status-badge" class="bg-slate-100 text-slate-500 border border-slate-200 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Listo</span>
+                    </div>
+                    <div id="ai-response-container" class="flex-grow overflow-y-auto max-h-[350px] p-4 bg-slate-50 border border-slate-150 rounded-xl text-xs leading-relaxed text-slate-700 space-y-3">
+                        <div class="flex flex-col items-center justify-center py-12 text-slate-400 space-y-2">
+                            <i class="fa-solid fa-sparkles text-4xl text-slate-200 animate-pulse"></i>
+                            <p class="text-[11px] italic font-semibold text-center">La IA está lista para procesar los datos de facturación actuales. Seleccione una consulta rápida a la izquierda.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Methods KPI breakdown list & Detailed Log -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                    <h3 class="text-xs font-bold text-slate-700 mb-4 uppercase tracking-wider flex items-center space-x-2">
+                        <i class="fa-solid fa-credit-card text-amber-500"></i>
+                        <span>Medios de Pago en Filtro</span>
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-emerald-500 text-base"><i class="fa-solid fa-money-bill-wave"></i></span>
+                                <span class="text-xs font-bold text-slate-600">Efectivo</span>
+                            </div>
+                            <span class="text-xs font-extrabold text-slate-800" id="payment-cash-total">$0</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-amber-500 text-base"><i class="fa-solid fa-mobile-screen"></i></span>
+                                <span class="text-xs font-bold text-slate-600">Nequi / Daviplata</span>
+                            </div>
+                            <span class="text-xs font-extrabold text-slate-800" id="payment-nequi-total">$0</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-sky-500 text-base"><i class="fa-solid fa-credit-card"></i></span>
+                                <span class="text-xs font-bold text-slate-600">Tarjeta</span>
+                            </div>
+                            <span class="text-xs font-extrabold text-slate-800" id="payment-card-total">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Sales Log -->
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 flex flex-col space-y-4 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
+                        <div>
+                            <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-2">
+                                <i class="fa-solid fa-book-open-reader text-amber-500"></i>
+                                <span>Historial de Ventas Auditadas</span>
+                            </h2>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <button onclick="exportSalesCSV()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-100 text-[10px] font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5">
+                                <i class="fa-solid fa-file-csv"></i>
+                                <span>Exportar CSV</span>
+                            </button>
+                            <button onclick="openConfirmClearModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 text-[10px] font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Vaciar Historial</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sales History Table -->
+                    <div class="overflow-x-auto w-full border border-slate-150 rounded-xl bg-slate-50">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-[9px] font-bold text-slate-500 border-b border-slate-200 bg-slate-100 uppercase">
+                                    <th class="p-3">Factura</th>
+                                    <th class="p-3">Fecha/Hora</th>
+                                    <th class="p-3">Sede</th>
+                                    <th class="p-3">Mesa</th>
+                                    <th class="p-3">Método Pago</th>
+                                    <th class="p-3 text-right">Monto Recaudado</th>
+                                    <th class="p-3 text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-history-tbody">
+                                <!-- Invoices render here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="empty-history-state" class="hidden py-8 text-center text-slate-400 space-y-2">
+                        <i class="fa-solid fa-folder-open text-3xl block text-slate-200"></i>
+                        <p class="text-xs font-semibold">No hay facturas procesadas para este filtro.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL: API KEY SETUP -->
+    <div id="modal-api-key" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md p-6 shadow-2xl relative animate-scale-up space-y-4">
+            <button onclick="closeModal('modal-api-key')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center">
+                <span class="text-2xl">⚙️</span>
+                <h3 class="text-base font-black text-slate-800 mt-2">Configurar API Key de Gemini</h3>
+                <p class="text-xs text-slate-500">Ingrese su API Key personal. Si se deja vacío, el sistema utilizará de forma automática las credenciales integradas en Canvas.</p>
+            </div>
+            <div class="space-y-2">
+                <label class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Gemini API Key</label>
+                <input type="password" id="gemini-api-key-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-amber-500 focus:bg-white transition-colors" placeholder="AIzaSy...">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="clearApiKey()" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl border border-slate-200 transition">
+                    Eliminar Guardada
+                </button>
+                <button onclick="saveApiKey()" class="py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 1: REGISTRAR PAGO (PAYMENT GATEWAY MODAL) -->
+    <div id="modal-payment" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md p-6 shadow-2xl relative animate-scale-up space-y-4">
+            <button onclick="closeModal('modal-payment')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="text-center">
+                <span class="text-2xl">💸</span>
+                <h3 class="text-base font-black text-slate-800 mt-2">Registrar Pago e Imprimir</h3>
+                <p class="text-xs text-slate-500">Verifica el monto total y selecciona el método de pago del cliente.</p>
+            </div>
+
+            <!-- Calculations box -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-150 space-y-2">
+                <div class="flex justify-between items-center text-xs font-bold text-slate-600">
+                    <span>TOTAL FACTURA:</span>
+                    <span class="text-lg font-black text-slate-900" id="payment-modal-total">0</span>
+                </div>
+            </div>
+
+            <!-- Payment Methods Grid -->
+            <div class="space-y-2">
+                <label class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Método de Pago</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="selectPaymentMethod('Efectivo')" id="pay-Efectivo" class="payment-method-btn py-3 border border-amber-500 bg-amber-50 text-amber-600 rounded-xl flex flex-col items-center justify-center font-bold text-xs space-y-1 transition">
+                        <i class="fa-solid fa-money-bill-1 text-base"></i>
+                        <span>Efectivo</span>
+                    </button>
+                    <button onclick="selectPaymentMethod('Nequi/Daviplata')" id="pay-Nequi-Daviplata" class="payment-method-btn py-3 border border-slate-200 bg-slate-50 text-slate-500 rounded-xl flex flex-col items-center justify-center font-bold text-xs space-y-1 transition">
+                        <i class="fa-solid fa-mobile-screen-button text-base"></i>
+                        <span>Nequi / Davi</span>
+                    </button>
+                    <button onclick="selectPaymentMethod('Tarjeta')" id="pay-Tarjeta" class="payment-method-btn py-3 border border-slate-200 bg-slate-50 text-slate-500 rounded-xl flex flex-col items-center justify-center font-bold text-xs space-y-1 transition">
+                        <i class="fa-solid fa-credit-card text-base"></i>
+                        <span>Tarjeta</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cash Exchange Helper -->
+            <div id="cash-helper-panel" class="space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="form-group">
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Monto Entregado ($)</label>
+                        <input oninput="calculateExchange(this.value)" type="number" id="cash-given-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-amber-500" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Cambio (Devuelta)</label>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-sm text-emerald-600 font-black" id="cash-change-display">
+                            $0
+                        </div>
+                    </div>
+                </div>
+                <!-- Quick Cash Presets -->
+                <div class="flex justify-between gap-1.5" id="cash-presets">
+                    <!-- Dynamic presets generated on the fly based on order total -->
+                </div>
+            </div>
+
+            <!-- Submit action -->
+            <button onclick="processFinalInvoice()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs rounded-xl shadow-md active:scale-95 transition flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-receipt"></i>
+                <span>Cerrar Cuenta y Registrar Venta</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 2: MANUAL ITEM ADDITION -->
+    <div id="modal-custom-item" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-sm p-6 shadow-2xl relative animate-scale-up space-y-4">
+            <button onclick="closeModal('modal-custom-item')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center">
+                <span class="text-2xl">✏️</span>
+                <h3 class="text-base font-black text-slate-800 mt-2">Agregar Ítem Especial</h3>
+                <p class="text-xs text-slate-500">Útil para eventos, pedidos personalizados o adiciones fuera de menú.</p>
+            </div>
+            <div class="space-y-3">
+                <div class="form-group">
+                    <label class="text-xs font-bold text-slate-500 block mb-1">Descripción / Plato</label>
+                    <input type="text" id="manual-name-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-amber-500" placeholder="Ej. Perro modificado especial">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="form-group">
+                        <label class="text-xs font-bold text-slate-500 block mb-1">Precio Unitario ($)</label>
+                        <input type="number" id="manual-price-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-amber-500" placeholder="Ej. 15000">
+                    </div>
+                    <div class="form-group">
+                        <label class="text-xs font-bold text-slate-500 block mb-1">Cantidad</label>
+                        <input type="number" id="manual-qty-input" value="1" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-amber-500">
+                    </div>
+                </div>
+            </div>
+            <button onclick="addManualItemToOrder()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl transition flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-check"></i>
+                <span>Añadir a la Cuenta</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: TICKET DE COMPRA (SIMULATED THERMAL RECEIPT) -->
+    <div id="modal-receipt" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="w-full max-w-sm my-8 flex flex-col space-y-4 animate-scale-up">
+            
+            <!-- Receipt Printable Wrapper -->
+            <div id="printReceiptArea" class="bg-white text-slate-900 p-6 rounded-lg shadow-2xl border border-slate-300 font-mono text-xs leading-relaxed">
+                <!-- Receipt Header -->
+                <div class="text-center border-b border-dashed border-slate-400 pb-4 mb-4">
+                    <h2 class="text-sm font-black tracking-tight uppercase">Quilla House</h2>
+                    <p class="text-[8px] font-bold">#ELFOODTRAILERDELVERDADEROSABOR</p>
+                    <p class="text-[8px] mt-1 font-bold" id="receipt-sede-address">Sede Arboleda (Trailer)</p>
+                    <p class="text-[8px] mt-0.5">Ibagué, Tolima, Colombia</p>
+                    <p class="text-[8px]" id="receipt-invoice-num">Factura: POS-12001</p>
+                    <p class="text-[8px]" id="receipt-datetime">Fecha: 18/06/2026, 12:00 PM</p>
+                </div>
+
+                <!-- Client Info / Table Info -->
+                <div class="border-b border-dashed border-slate-400 pb-2 mb-3">
+                    <div class="flex justify-between">
+                        <span>Mesa / Origen:</span>
+                        <span id="receipt-table-info" class="font-bold">Mesa 1</span>
+                    </div>
+                </div>
+
+                <!-- Items Listing -->
+                <div class="border-b border-dashed border-slate-400 pb-3 mb-3">
+                    <div class="grid grid-cols-12 font-bold mb-1 border-b border-slate-200 pb-1 text-[8px]">
+                        <span class="col-span-6">Descripción</span>
+                        <span class="col-span-2 text-center">Cant</span>
+                        <span class="col-span-4 text-right">Valor</span>
+                    </div>
+                    <div id="receipt-items-list" class="space-y-1">
+                        <!-- Dynamic list of thermal receipt items -->
+                    </div>
+                </div>
+
+                <!-- Totals Grid -->
+                <div class="space-y-1 border-b border-dashed border-slate-400 pb-3 mb-3">
+                    <div class="flex justify-between font-bold text-xs border-t border-slate-200 pt-1.5 mt-1.5 text-slate-950">
+                        <span>TOTAL A PAGAR:</span>
+                        <span id="receipt-total">$0</span>
+                    </div>
+                </div>
+
+                <!-- Payment Details -->
+                <div class="border-b border-dashed border-slate-400 pb-3 mb-3 text-[9px] space-y-1">
+                    <div class="flex justify-between">
+                        <span>Forma de Pago:</span>
+                        <span id="receipt-pay-method" class="font-bold">Efectivo</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Monto Recibido:</span>
+                        <span id="receipt-cash-given">$0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Devuelta/Cambio:</span>
+                        <span id="receipt-cash-change" class="font-bold">$0</span>
+                    </div>
+                </div>
+
+                <!-- Footers of ticket -->
+                <div class="text-center text-[8px] text-slate-500 pt-2">
+                    <p class="font-bold text-slate-900">¡MUCHAS GRACIAS POR TU COMPRA!</p>
+                    <p class="mt-0.5">Quilla House • El Verdadero Sabor Costeño</p>
+                </div>
+            </div>
+
+            <!-- Receipt Navigation and print controls -->
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeModal('modal-receipt')" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl border border-slate-200 transition flex items-center justify-center space-x-1">
+                    <i class="fa-solid fa-close"></i>
+                    <span>Cerrar</span>
+                </button>
+                <button onclick="window.print()" class="py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Imprimir Ticket</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM INTERACTIVE CONFIRMATION MODAL -->
+    <div id="modal-confirm" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-sm p-6 shadow-2xl relative animate-scale-up space-y-4 text-center">
+            <span class="text-3xl text-rose-500 block"><i class="fa-solid fa-circle-exclamation"></i></span>
+            <h3 class="text-sm font-black text-slate-800" id="confirm-modal-title">¿Estás seguro?</h3>
+            <p class="text-xs text-slate-500" id="confirm-modal-description">Esta acción eliminará de forma irreversible la información del registro de auditoría.</p>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button id="confirm-btn-cancel" onclick="closeModal('modal-confirm')" class="py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-lg border border-slate-200 transition">Cancelar</button>
+                <button id="confirm-btn-action" class="py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-lg transition">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM POPUP TOAST SYSTEM -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-3 text-center text-[9px] text-slate-400 font-bold tracking-wider uppercase">
+        QUILLA HOUSE POS SYSTEM v4.0 • SEDE ARBOLEDA (TRAILER) & SEDE RINCÓN (LOCAL) • IBAGUÉ, 2026
+    </footer>
+
+    <script>
+        // --- STREAMING_CHUNK: Cargando la base de datos de menús por sede... ---
+        
+        // MENÚ DETALLADO PARA SEDE ARBOLEDA (FOOD TRAILER - COMIDAS RÁPIDAS)
+        // Datos extraídos de "Menú Food Trailer (1).pdf"
+        const MENU_ARBOLEDA = [
+            // SALCHIPAPAS
+            { id: "ARB-S1", name: "Salchipapa Sencilla", price: 15000, category: "Salchipapas", emoji: "🍟", description: "Salchicha, papa a la francesa, lechuga, papa ripio, queso costeño y salsas de la casa." },
+            { id: "ARB-S2", name: "Choripapa", price: 15000, category: "Salchipapas", emoji: "🌭", description: "Chorizo, papa a la francesa, lechuga, papa ripio, queso costeño y salsas de la casa." },
+            { id: "ARB-S3", name: "Salchipapa Rebolera", price: 29000, category: "Salchipapas", emoji: "💥", description: "Pechuga, Cerdo, Salchicha, papa a la francesa, lechuga, papa ripio, queso costeño y salsas de la casa." },
+            { id: "ARB-S4", name: "Salchipapa Desgraciada", price: 37000, category: "Salchipapas", emoji: "👥", description: "Pechuga, carne de cerdo, chorizo, butifarra, papa a la francesa, lechuga, papa ripio, queso costeño, queso fundidos, maicitos, tocineta." },
+            { id: "ARB-S5", name: "Salchipapa Revoltosa 2P", price: 49000, category: "Salchipapas", emoji: "🔥", description: "Pechuga, carne de cerdo, carne de Res, chorizo, butifarra, Salchicha, Costillitas, papa, fundido, tocineta (Para 2 personas)." },
+            { id: "ARB-S6", name: "Salchipapa Revoltosa 4P", price: 98000, category: "Salchipapas", emoji: "👑", description: "Pechuga, carne de cerdo, carne de Res, chorizo, butifarra, Salchicha, Costillitas, papa, fundido, tocineta (Para 4 personas)." },
+            { id: "ARB-S7", name: "Desgranado Quillero", price: 21000, category: "Salchipapas", emoji: "🌽", description: "Bollitos, Pechuga, carne de cerdo, Salchicha, lechuga, papa ripio, queso costeño y salsas." },
+            // HAMBURGUESAS
+            { id: "ARB-H1", name: "Hamburguesa de Res", price: 12000, category: "Hamburguesas", emoji: "🍔", description: "Pan artesanal, Carne de res, tomate, cebolla, queso y salsas." },
+            { id: "ARB-H2", name: "Hamburguesa de Pollo", price: 12000, category: "Hamburguesas", emoji: "🍗", description: "Pan artesanal, pollo apanado, tomate, cebolla, queso y salsas." },
+            { id: "ARB-H3", name: "Hamburguesa Costeña", price: 22000, category: "Hamburguesas", emoji: "🌴", description: "Pan artesanal, Carne de res, tocineta, butifarra, queso costeño frito, mozzarella, tajadas de plátano." },
+            { id: "ARB-H4", name: "Hamburguesa Quillera", price: 20000, category: "Hamburguesas", emoji: "👑", description: "Pan artesanal, Carne de res y pollo, tocineta, queso cheddar, anillos de cebolla, lechuga, tomate." },
+            // PERROS
+            { id: "ARB-P1", name: "Perro Sencillo", price: 12000, category: "Perros", emoji: "🌭", description: "Pan artesanal, salchicha, cebolla, lechuga, ripio, queso y salsas." },
+            { id: "ARB-P2", name: "Perro Americano", price: 15000, category: "Perros", emoji: "🥓", description: "Pan artesanal, salchicha americana, tocineta, cebolla, lechuga, ripio." },
+            { id: "ARB-P3", name: "Perro Quillero", price: 21000, category: "Perros", emoji: "🌶️", description: "Pan artesanal, Carne de cerdo, Pechuga, chorizo, queso, lechuga, cebolla." },
+            // PATACONES
+            { id: "ARB-PA1", name: "Patacón con Pollo", price: 19000, category: "Patacones", emoji: "🍌", description: "Pollo desmechado, chorizo, tocineta, maicitos, queso mozzarella, patacón." },
+            { id: "ARB-PA2", name: "Patacón con Carne", price: 19000, category: "Patacones", emoji: "🥩", description: "Carne desmechada, chorizo, tocineta, maicitos, queso mozzarella, patacón." },
+            { id: "ARB-PA3", name: "Patacón Mixto", price: 21000, category: "Patacones", emoji: "🌟", description: "Carne desmechada y pollo, chorizo, tocineta, maicitos, queso, patacón." },
+            // PA' PICAR
+            { id: "ARB-PP1", name: "Yuquitas con Suero", price: 10000, category: "Pa Picar", emoji: "🍟", description: "Yucas fritas crujientes con suero costeño auténtico." },
+            { id: "ARB-PP2", name: "Patacones con Suero", price: 10000, category: "Pa Picar", emoji: "🍌", description: "Patacones crocantes con suero costeño." },
+            { id: "ARB-PP3", name: "Anillos de Cebolla", price: 10000, category: "Pa Picar", emoji: "🧅", description: "Anillos de cebolla apanados y crujientes." },
+            { id: "ARB-PP4", name: "Patacones con Queso Costeño", price: 12000, category: "Pa Picar", emoji: "🧀", description: "Patacones crujientes con queso costeño rallado." },
+            { id: "ARB-PP5", name: "Butifarras con Tajaditas", price: 14000, category: "Pa Picar", emoji: "🍡", description: "Butifarras con tajadas de plátano y suero costeño." },
+            { id: "ARB-PP6", name: "Carimañolas (4 Und)", price: 14000, category: "Pa Picar", emoji: "🥟", description: "Carimañolas tradicionales rellenas acompañadas de suero." },
+            // CARNES
+            { id: "ARB-C1", name: "Pechuga a la Plancha (280g)", price: 20000, category: "Carnes", emoji: "🍗", description: "Pechuga a la plancha de 280 gramos acompañada de papa a la francesa." },
+            { id: "ARB-C2", name: "Lomo de Cerdo (280g)", price: 22000, category: "Carnes", emoji: "🥩", description: "Lomo de cerdo de 280 gramos acompañado de papa a la francesa." },
+            { id: "ARB-C3", name: "Churrasco (280g)", price: 24000, category: "Carnes", emoji: "🍖", description: "Churrasco de 280 gramos acompañado de papa a la francesa." },
+            // CEVICHE
+            { id: "ARB-CE1", name: "Ceviche Camarón (7 Oz)", price: 13000, category: "Ceviche", emoji: "🦐", description: "Fresco ceviche de camarones de 7 onzas." },
+            { id: "ARB-CE2", name: "Ceviche Camarón (12 Oz)", price: 20000, category: "Ceviche", emoji: "🦐", description: "Fresco ceviche de camarones de 12 onzas." },
+            // BEBIDAS
+            { id: "ARB-B1", name: "Botella de Agua", price: 2000, category: "Bebidas", emoji: "💧", description: "Agua embotellada natural." },
+            { id: "ARB-B2", name: "Gaseosa 400 ML", price: 4000, category: "Bebidas", emoji: "🥤", description: "Gaseosa personal." },
+            { id: "ARB-B3", name: "Jugo Hit 1.5 L", price: 6000, category: "Bebidas", emoji: "🧃", description: "Jugo familiar." },
+            { id: "ARB-B4", name: "Gaseosa 1.5 L", price: 7000, category: "Bebidas", emoji: "🥤", description: "Gaseosa tamaño familiar." },
+            // ADICIONALES
+            { id: "ARB-A1", name: "Adicional Papas Francesas", price: 6000, category: "Adicionales", emoji: "🍟", description: "Porción extra de papas." },
+            { id: "ARB-A2", name: "Adicional Queso Fundido", price: 6000, category: "Adicionales", emoji: "🧀", description: "Queso cheddar fundido." },
+            { id: "ARB-A3", name: "Adicional Tocineta", price: 3000, category: "Adicionales", emoji: "🥓", description: "Tira crocante de tocineta." },
+            { id: "ARB-A4", name: "Adicional Galletas Saltín", price: 1000, category: "Adicionales", emoji: "🍪", description: "Galletas saladas." },
+            { id: "ARB-A5", name: "Adicional Suero Costeño", price: 1000, category: "Adicionales", emoji: "🍶", description: "Suero costeño tradicional." },
+            { id: "ARB-A6", name: "Empaque para Llevar", price: 1000, category: "Adicionales", emoji: "🛍️", description: "Empaque térmico de transporte." }
+        ];
+
+        // --- STREAMING_CHUNK: Cargando el menú de Sede Rincón (Parrilla, Mar & Bebidas especiales)... ---
+        // MENÚ DETALLADO PARA SEDE RINCÓN (LOCAL - PARRILLA Y MAR)
+        // Datos extraídos de "Menú quilla House (4).pdf"
+        const MENU_RINCON = [
+            // SALCHIPAPAS
+            { id: "RIN-S1", name: "Salchipapa Sencilla", price: 17000, category: "Salchipapas", emoji: "🍟", description: "Salchicha, papa a la francesa, lechuga, papa ripio, queso costeño y salsas de la casa." },
+            { id: "RIN-S2", name: "Choripapa", price: 17000, category: "Salchipapas", emoji: "🌭", description: "Chorizo, papa a la francesa, lechuga, papa ripio, queso costeño y salsas de la casa." },
+            { id: "RIN-S3", name: "Salchipapa Rebolera", price: 22000, category: "Salchipapas", emoji: "💥", description: "Pechuga, Cerdo, Salchicha, papa a la francesa, lechuga, papa ripio, queso costeño y salsas." },
+            { id: "RIN-S4", name: "Salchipapa Desgraciada", price: 34000, category: "Salchipapas", emoji: "👥", description: "Pechuga, carne de cerdo, chorizo, butifarra, papa a la francesa, lechuga, papa ripio." },
+            { id: "RIN-S5", name: "Salchipapa Revoltosa 2P", price: 54000, category: "Salchipapas", emoji: "🔥", description: "Para 2 personas. Pechuga, cerdo, res, chorizo, butifarra, salchicha, costillitas, papa, fundido." },
+            { id: "RIN-S6", name: "Salchipapa Revoltosa 4P", price: 105000, category: "Salchipapas", emoji: "👑", description: "Para 4 personas. Pechuga, cerdo, res, chorizo, butifarra, salchicha, costillitas, papa, fundido." },
+            { id: "RIN-S7", name: "Desgranado Quillero", price: 25000, category: "Salchipapas", emoji: "🌽", description: "Bollitos, Pechuga, carne de cerdo, Salchicha, lechuga, papa ripio, queso costeño y salsas." },
+            // HAMBURGUESAS
+            { id: "RIN-H1", name: "Hamburguesa de Res", price: 15000, category: "Hamburguesas", emoji: "🍔", description: "Pan artesanal, Carne de res, tomate, cebolla, queso y salsas." },
+            { id: "RIN-H2", name: "Hamburguesa de Pollo", price: 15000, category: "Hamburguesas", emoji: "🍗", description: "Pan artesanal, pollo apanado, tomate, cebolla, queso y salsas." },
+            { id: "RIN-H3", name: "Hamburguesa Costeña", price: 28000, category: "Hamburguesas", emoji: "🌴", description: "Pan artesanal, Carne de res, tocineta, butifarra, queso costeño frito, mozzarella, tajadas de plátano." },
+            { id: "RIN-H4", name: "Hamburguesa Quillera", price: 25000, category: "Hamburguesas", emoji: "👑", description: "Pan artesanal, Carne de res y pollo, tocineta, queso cheddar, anillos de cebolla." },
+            // PERROS
+            { id: "RIN-P1", name: "Perro Sencillo", price: 15000, category: "Perros", emoji: "🌭", description: "Pan artesanal, salchicha, cebolla, lechuga, ripio, queso y salsas." },
+            { id: "RIN-P2", name: "Perro Americano", price: 18000, category: "Perros", emoji: "🥓", description: "Pan artesanal, salchicha americana, tocineta, cebolla, lechuga, ripio." },
+            { id: "RIN-P3", name: "Perro Quillero", price: 25000, category: "Perros", emoji: "🌶️", description: "Pan artesanal, Carne de cerdo, Pechuga, chorizo, queso, lechuga, cebolla." },
+            // PATACONES
+            { id: "RIN-PA1", name: "Patacón con Pollo", price: 21000, category: "Patacones", emoji: "🍌", description: "Pollo desmechado, chorizo, tocineta, maicitos, queso mozzarella, patacón." },
+            { id: "RIN-PA2", name: "Patacón con Carne", price: 21000, category: "Patacones", emoji: "🥩", description: "Carne desmechada, chorizo, tocineta, maicitos, queso mozzarella, patacón." },
+            { id: "RIN-PA3", name: "Patacón Mixto", price: 23000, category: "Patacones", emoji: "🌟", description: "Carne desmechada y pollo, chorizo, tocineta, maicitos, queso, patacón." },
+            // PA' PICAR
+            { id: "RIN-PP1", name: "Yuquitas con Suero", price: 10000, category: "Pa Picar", emoji: "🍟", description: "Yucas fritas crujientes con suero costeño auténtico." },
+            { id: "RIN-PP2", name: "Patacones con Suero", price: 10000, category: "Pa Picar", emoji: "🍌", description: "Patacones crocantes con suero costeño." },
+            { id: "RIN-PP3", name: "Anillos de Cebolla", price: 10000, category: "Pa Picar", emoji: "🧅", description: "Anillos de cebolla apanados y crujientes." },
+            { id: "RIN-PP4", name: "Patacones con Queso Costeño", price: 12000, category: "Pa Picar", emoji: "🧀", description: "Patacones crujientes con queso costeño rallado." },
+            { id: "RIN-PP5", name: "Butifarras con Tajaditas", price: 14000, category: "Pa Picar", emoji: "🍡", description: "Butifarras con tajadas de plátano y suero costeño." },
+            { id: "RIN-PP6", name: "Carimañolas (4 Und)", price: 14000, category: "Pa Picar", emoji: "🥟", description: "Carimañolas tradicionales rellenas acompañadas de suero." },
+            // CARNES
+            { id: "RIN-C1", name: "Pechuga a la Plancha (300g)", price: 28000, category: "Carnes", emoji: "🍗", description: "300 gramos de pechuga a la plancha acompañada de papa a la francesa." },
+            { id: "RIN-C2", name: "Lomo de Cerdo (300g)", price: 32000, category: "Carnes", emoji: "🥩", description: "300 gramos de lomo de cerdo acompañado de papa a la francesa." },
+            { id: "RIN-C3", name: "Churrasco (300g)", price: 34000, category: "Carnes", emoji: "🍖", description: "300 gramos de churrasco de res acompañado de papa a la francesa." },
+            // BEBIDAS ESPECIALES RINCÓN
+            { id: "RIN-B1", name: "Gaseosa 400 ML", price: 5000, category: "Bebidas", emoji: "🥤", description: "Gaseosa personal." },
+            { id: "RIN-B2", name: "Gaseosa 1.5 L", price: 9000, category: "Bebidas", emoji: "🥤", description: "Gaseosa familiar." },
+            { id: "RIN-B3", name: "Limonada Natural", price: 7000, category: "Limonadas", emoji: "🍋", description: "Limonada natural fría." },
+            { id: "RIN-B4", name: "Limonada de Coco", price: 9000, category: "Limonadas", emoji: "🥥", description: "Limonada cremosa con coco." },
+            { id: "RIN-B5", name: "Limonada Cerezada", price: 9000, category: "Limonadas", emoji: "🍒", description: "Limonada dulce cerezada." },
+            { id: "RIN-B6", name: "Jugo Natural en Agua", price: 8000, category: "Jugos", emoji: "🧃", description: "Jugo preparado en agua fresca." },
+            { id: "RIN-B7", name: "Jugo Natural en Leche", price: 9000, category: "Jugos", emoji: "🥛", description: "Jugo natural cremoso en leche." },
+            { id: "RIN-B8", name: "Cerveza Costeñita", price: 6000, category: "Cervezas", emoji: "🍺", description: "Cerveza Costeñita fría." },
+            { id: "RIN-B9", name: "Cerveza Nacional", price: 8000, category: "Cervezas", emoji: "🍺", description: "Cerveza Club Colombia / Águila." },
+            { id: "RIN-B10", name: "Cerveza Corona", price: 9000, category: "Cervezas", emoji: "🍺", description: "Cerveza Corona de botella." },
+            { id: "RIN-B11", name: "Botella de Agua", price: 3000, category: "Bebidas", emoji: "💧", description: "Agua mineral fresca." },
+            // ADICIONALES
+            { id: "RIN-A1", name: "Adicional Papas Francesas", price: 6000, category: "Adicionales", emoji: "🍟", description: "Porción de papas fritas." },
+            { id: "RIN-A2", name: "Adicional Queso Fundido", price: 6000, category: "Adicionales", emoji: "🧀", description: "Queso cheddar fundido." },
+            { id: "RIN-A3", name: "Adicional Tocineta", price: 3000, category: "Adicionales", emoji: "🥓", description: "Tiras de tocineta crujiente." },
+            { id: "RIN-A4", name: "Adicional Galletas Saltín", price: 1000, category: "Adicionales", emoji: "🍪", description: "Paquete de galletas saladas." },
+            { id: "RIN-A5", name: "Adicional Suero Costeño", price: 1000, category: "Adicionales", emoji: "🍶", description: "Porción de suero costeño." },
+            { id: "RIN-A6", name: "Empaque para Llevar", price: 1000, category: "Adicionales", emoji: "🛍️", description: "Caja/empaque térmico de transporte." }
+        ];
+
+        // --- STREAMING_CHUNK: Inicializando estados y utilidades del sistema... ---
+        // MEMORY VARIABLES & LOGIN LOGIC
+        let currentUserRole = null; // 'arboleda', 'rincon', 'admin'
+        let selectedRoleToVerify = null;
+        let currentActiveTable = 'Mesa 1';
+        let activeCategory = 'Todos';
+        let searchQuery = '';
+        let selectedPaymentMethod = 'Efectivo';
+        let currentAdminDateFilter = 'today'; // today, yesterday, week, all, custom
+
+        // Custom list of tables per Sede
+        const SYSTEM_TABLES = ['Mesa 1', 'Mesa 2', 'Mesa 3', 'Mesa 4', 'Mesa 5', 'Mesa 6', 'Barra 1', 'Para Llevar', 'Domicilio'];
+
+        // Table Carts
+        let tableOrders = JSON.parse(localStorage.getItem('qh_table_orders_v4')) || {
+            'Mesa 1': [], 'Mesa 2': [], 'Mesa 3': [], 'Mesa 4': [], 
+            'Mesa 5': [], 'Mesa 6': [], 'Barra 1': [], 'Para Llevar': [], 'Domicilio': []
+        };
+
+        // Date Helpers to simulate realistic filter logs dynamically
+        const formatZero = (num) => String(num).padStart(2, '0');
+        const getCustomLocaleDate = (daysAgo = 0) => {
+            const d = new Date(Date.now() - (daysAgo * 86400000));
+            return `${formatZero(d.getDate())}/${formatZero(d.getMonth() + 1)}/${d.getFullYear()}`;
+        };
+
+        // Simulated Historical Sales dynamically matching "Hoy" and "Ayer"
+        const DEFAULT_SALES = [
+            {
+                id: "POS-12001",
+                datetime: `${getCustomLocaleDate(0)}, 11:30 AM`, // Hoy
+                rawDate: getCustomLocaleDate(0),
+                sedeId: 1,
+                sedeName: "Sede Arboleda (Trailer)",
+                tableName: "Mesa 3",
+                paymentMethod: "Efectivo",
+                total: 42000,
+                cashGiven: 50000,
+                cashChange: 8000,
+                items: [
+                    { id: "ARB-S3", name: "Salchipapa Rebolera", price: 29000, qty: 1, notes: "" },
+                    { id: "ARB-B1", name: "Botella de Agua", price: 2000, qty: 1, notes: "" },
+                    { id: "ARB-PP1", name: "Yuquitas con Suero", price: 10000, qty: 1, notes: "" }
+                ]
+            },
+            {
+                id: "POS-12002",
+                datetime: `${getCustomLocaleDate(0)}, 12:15 PM`, // Hoy
+                rawDate: getCustomLocaleDate(0),
+                sedeId: 2,
+                sedeName: "Sede Rincón (Local)",
+                tableName: "Mesa 1",
+                paymentMethod: "Tarjeta",
+                total: 62000,
+                cashGiven: 62000,
+                cashChange: 0,
+                items: [
+                    { id: "RIN-H4", name: "Hamburguesa Quillera", price: 25000, qty: 2, notes: "Sin cebolla" },
+                    { id: "RIN-B4", name: "Limonada de Coco", price: 9000, qty: 1, notes: "" },
+                    { id: "RIN-B11", name: "Botella de Agua", price: 3000, qty: 1, notes: "" }
+                ]
+            },
+            {
+                id: "POS-12003",
+                datetime: `${getCustomLocaleDate(1)}, 01:05 PM`, // Ayer
+                rawDate: getCustomLocaleDate(1),
+                sedeId: 1,
+                sedeName: "Sede Arboleda (Trailer)",
+                tableName: "Domicilio",
+                paymentMethod: "Nequi/Daviplata",
+                total: 38000,
+                cashGiven: 38000,
+                cashChange: 0,
+                items: [
+                    { id: "ARB-H3", name: "Hamburguesa Costeña", price: 22000, qty: 1, notes: "" },
+                    { id: "ARB-P2", name: "Perro Americano", price: 15000, qty: 1, notes: "" },
+                    { id: "ARB-A6", name: "Empaque para Llevar", price: 1000, qty: 1, notes: "" }
+                ]
+            },
+            {
+                id: "POS-12004",
+                datetime: `${getCustomLocaleDate(1)}, 01:40 PM`, // Ayer
+                rawDate: getCustomLocaleDate(1),
+                sedeId: 2,
+                sedeName: "Sede Rincón (Local)",
+                tableName: "Mesa 5",
+                paymentMethod: "Efectivo",
+                total: 89000,
+                cashGiven: 100000,
+                cashChange: 11000,
+                items: [
+                    { id: "RIN-S5", name: "Salchipapa Revoltosa 2P", price: 54000, qty: 1, notes: "Bien tostada" },
+                    { id: "RIN-PA2", name: "Patacón con Carne", price: 21000, qty: 1, notes: "" },
+                    { id: "RIN-B10", name: "Cerveza Corona", price: 9000, qty: 1, notes: "" },
+                    { id: "RIN-B1", name: "Gaseosa 400 ML", price: 5000, qty: 1, notes: "" }
+                ]
+            },
+            {
+                id: "POS-12005",
+                datetime: `${getCustomLocaleDate(2)}, 02:20 PM`, // Hace 2 días
+                rawDate: getCustomLocaleDate(2),
+                sedeId: 2,
+                sedeName: "Sede Rincón (Local)",
+                tableName: "Para Llevar",
+                paymentMethod: "Nequi/Daviplata",
+                total: 44000,
+                cashGiven: 44000,
+                cashChange: 0,
+                items: [
+                    { id: "RIN-C1", name: "Pechuga a la Plancha (300g)", price: 28000, qty: 1, notes: "" },
+                    { id: "RIN-PP5", name: "Butifarras con Tajaditas", price: 14000, qty: 1, notes: "" },
+                    { id: "RIN-A6", name: "Empaque para Llevar", price: 1000, qty: 2, notes: "" }
+                ]
+            }
+        ];
+
+        let salesHistory = JSON.parse(localStorage.getItem('qh_sales_history_v4')) || DEFAULT_SALES;
+
+        // --- STREAMING_CHUNK: Lógica de inicio de sesión por PIN... ---
+        // SYSTEM LOGIN LOGIC
+        function selectProfile(role) {
+            selectedRoleToVerify = role;
+            document.getElementById('pin-pad-area').classList.remove('hidden');
+            document.getElementById('pin-input').value = '';
+            document.getElementById('pin-input').focus();
+            
+            let label = "Ingresa PIN ";
+            if (role === 'arboleda') label += "(Arboleda)";
+            if (role === 'rincon') label += "(Rincón)";
+            if (role === 'admin') label += "(Administrador)";
+            document.getElementById('pin-label-title').innerText = label;
+        }
+
+        function cancelPinSelection() {
+            document.getElementById('pin-pad-area').classList.add('hidden');
+            document.getElementById('pin-input').value = '';
+            selectedRoleToVerify = null;
+        }
+
+        function appendPin(num) {
+            const pinField = document.getElementById('pin-input');
+            if (pinField.value.length < 4) {
+                pinField.value += num;
+            }
+        }
+
+        function clearPin() {
+            document.getElementById('pin-input').value = '';
+        }
+
+        // Check PIN codes (Arboleda: 1111, Rincón: 2222, Admin: 9999)
+        function submitPinCheck() {
+            const enteredPin = document.getElementById('pin-input').value;
+            let success = false;
+
+            if (selectedRoleToVerify === 'arboleda' && enteredPin === '1111') success = true;
+            if (selectedRoleToVerify === 'rincon' && enteredPin === '2222') success = true;
+            if (selectedRoleToVerify === 'admin' && enteredPin === '9999') success = true;
+
+            if (success) {
+                currentUserRole = selectedRoleToVerify;
+                sessionStorage.setItem('qh_logged_user', currentUserRole);
+                document.getElementById('login-screen').classList.add('hidden');
+                initMainSystemView();
+                showToast("Acceso Concedido. ¡Bienvenido!", "success");
+            } else {
+                showToast("PIN Incorrecto. Intenta de nuevo.", "error");
+                document.getElementById('pin-input').value = '';
+            }
+        }
+
+        // Automatically restore session on load
+        window.onload = function() {
+            const cachedUser = sessionStorage.getItem('qh_logged_user');
+            if (cachedUser) {
+                currentUserRole = cachedUser;
+                document.getElementById('login-screen').classList.add('hidden');
+                initMainSystemView();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+            }
+        };
+
+        // --- STREAMING_CHUNK: Renderizando componentes según perfil... ---
+        // SWITCH AND ADAPT PANELS BASED ON ROLE
+        function initMainSystemView() {
+            const posSection = document.getElementById('section-pos');
+            const adminSection = document.getElementById('section-admin');
+            const branchBadge = document.getElementById('branch-indicator-badge');
+            const userNameDisplay = document.getElementById('current-user-display-name');
+
+            // Reset filters
+            activeCategory = 'Todos';
+            searchQuery = '';
+
+            if (currentUserRole === 'admin') {
+                // Admin Setup
+                posSection.classList.add('hidden');
+                adminSection.classList.remove('hidden');
+                branchBadge.innerText = "Auditoría General";
+                branchBadge.className = "text-[10px] text-amber-600 bg-amber-50 border border-amber-100 font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mt-1";
+                userNameDisplay.innerText = "Administrador";
+                
+                // Initialize admin filters
+                document.getElementById('filter-date-shortcut').value = 'today';
+                document.getElementById('filter-specific-date').classList.add('hidden');
+                document.getElementById('filter-sede-select').value = 'all';
+                document.getElementById('filter-payment-select').value = 'all';
+                currentAdminDateFilter = 'today';
+                
+                filterAdminDashboard();
+            } else {
+                // POS Setup
+                posSection.classList.remove('hidden');
+                adminSection.classList.add('hidden');
+
+                if (currentUserRole === 'arboleda') {
+                    branchBadge.innerText = "Sede Arboleda (Food Trailer)";
+                    branchBadge.className = "text-[10px] text-teal-600 bg-teal-50 border border-teal-100 font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mt-1";
+                    userNameDisplay.innerText = "Operador Trailer (Arboleda)";
+                    document.getElementById('billing-sede-subtitle').innerText = "Sede Arboleda (Food Trailer)";
+                    document.getElementById('menu-title-display').innerText = "Carta Sede Arboleda";
+                } else if (currentUserRole === 'rincon') {
+                    branchBadge.innerText = "Sede Rincón (Local)";
+                    branchBadge.className = "text-[10px] text-rose-600 bg-rose-50 border border-rose-100 font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mt-1";
+                    userNameDisplay.innerText = "Operador Local (Rincón)";
+                    document.getElementById('billing-sede-subtitle').innerText = "Sede Rincón (Local)";
+                    document.getElementById('menu-title-display').innerText = "Carta Sede Rincón";
+                }
+
+                renderTablesSelector();
+                renderCategories();
+                renderProductsGrid();
+                renderInvoiceSummary();
+            }
+        }
+
+        // LOGOUT METHOD
+        function logout() {
+            currentUserRole = null;
+            sessionStorage.removeItem('qh_logged_user');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('pin-pad-area').classList.add('hidden');
+            document.getElementById('pin-input').value = '';
+        }
+
+        // --- STREAMING_CHUNK: Creando el selector de mesas para la sede... ---
+        // POS RENDERERS: TABLES
+        function renderTablesSelector() {
+            const container = document.getElementById('tables-container');
+            container.innerHTML = '';
+
+            SYSTEM_TABLES.forEach(table => {
+                const isActive = tableOrders[table] && tableOrders[table].length > 0;
+                const isSelected = table === currentActiveTable;
+                
+                let btnStyles = "py-2 px-1 rounded-xl text-[11px] font-bold text-center border transition relative flex flex-col items-center justify-center space-y-1 ";
+                
+                if (isSelected) {
+                    btnStyles += "bg-amber-500 border-amber-500 text-white shadow-sm";
+                } else if (isActive) {
+                    btnStyles += "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100";
+                } else {
+                    btnStyles += "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-800";
+                }
+
+                const itemQty = isActive ? tableOrders[table].reduce((acc, current) => acc + current.qty, 0) : 0;
+
+                const tableBtn = document.createElement('button');
+                tableBtn.className = btnStyles;
+                tableBtn.onclick = () => selectActiveTable(table);
+                
+                const tableIcon = table.includes('Mesa') ? '<i class="fa-solid fa-chair text-[11px]"></i>' : 
+                                  table.includes('Barra') ? '<i class="fa-solid fa-martini-glass-citrus text-[11px]"></i>' :
+                                  table.includes('Llevar') ? '<i class="fa-solid fa-bag-shopping text-[11px]"></i>' :
+                                  '<i class="fa-solid fa-motorcycle text-[11px]"></i>';
+
+                tableBtn.innerHTML = `
+                    ${tableIcon}
+                    <span class="text-[9px] leading-none">${table}</span>
+                    ${isActive ? `<span class="absolute -top-1.5 -right-1 bg-emerald-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-xs">${itemQty}</span>` : ''}
+                `;
+
+                container.appendChild(tableBtn);
+            });
+        }
+
+        function selectActiveTable(tableName) {
+            currentActiveTable = tableName;
+            document.getElementById('active-table-badge').innerText = `Ordenando en: ${tableName}`;
+            document.getElementById('billing-target-title').innerText = `Facturar: ${tableName}`;
+            
+            // Hide AI upsell box on table switch until user requests recommendation
+            document.getElementById('ai-upsell-box').classList.add('hidden');
+
+            renderTablesSelector();
+            renderInvoiceSummary();
+        }
+
+        // --- STREAMING_CHUNK: Generando las pestañas de categorías... ---
+        // CATEGORY MENU TABS
+        function renderCategories() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+
+            const currentMenu = currentUserRole === 'arboleda' ? MENU_ARBOLEDA : MENU_RINCON;
+            const uniqueCats = ['Todos', ...new Set(currentMenu.map(p => p.category))];
+
+            uniqueCats.forEach(cat => {
+                const isSelected = cat === activeCategory;
+                const btn = document.createElement('button');
+                btn.onclick = () => {
+                    activeCategory = cat;
+                    renderCategories();
+                    renderProductsGrid();
+                };
+
+                if (isSelected) {
+                    btn.className = "px-4 py-1.5 rounded-xl bg-amber-500 text-white font-bold text-xs shadow-xs transition-all whitespace-nowrap flex items-center space-x-1";
+                } else {
+                    btn.className = "px-4 py-1.5 rounded-xl bg-white text-slate-600 hover:text-slate-800 border border-slate-200 text-xs transition-all whitespace-nowrap flex items-center space-x-1 hover:bg-slate-50";
+                }
+
+                btn.innerText = cat;
+                container.appendChild(btn);
+            });
+        }
+
+        // --- STREAMING_CHUNK: Pintando la cuadrícula de platos en el POS claro... ---
+        // CATALOG GRID LOADER
+        function renderProductsGrid() {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '';
+
+            const currentMenu = currentUserRole === 'arboleda' ? MENU_ARBOLEDA : MENU_RINCON;
+            let list = [...currentMenu];
+
+            if (activeCategory !== 'Todos') {
+                list = list.filter(p => p.category === activeCategory);
+            }
+
+            if (searchQuery.trim() !== '') {
+                const q = searchQuery.toLowerCase();
+                list = list.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+            }
+
+            list.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 hover:border-amber-500 rounded-xl p-3.5 flex flex-col justify-between transition duration-150 cursor-pointer active:scale-98 group shadow-xs hover:shadow-sm";
+                card.onclick = () => addItemToOrder(p);
+
+                card.innerHTML = `
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-start">
+                            <span class="text-2xl group-hover:scale-110 transition-transform">${p.emoji}</span>
+                            <span class="bg-slate-50 border border-slate-100 text-amber-600 text-xs font-bold px-2.5 py-1 rounded-lg">
+                                $${p.price.toLocaleString('es-CO')}
+                            </span>
+                        </div>
+                        <h4 class="text-xs font-bold text-slate-800 group-hover:text-amber-600 transition-colors">${p.name}</h4>
+                        <p class="text-[9px] text-slate-400 line-clamp-2 leading-relaxed">${p.description}</p>
+                    </div>
+                    <div class="mt-3 pt-2.5 border-t border-slate-100 flex justify-between items-center text-[9px]">
+                        <span class="font-bold text-slate-400 uppercase tracking-wider">${p.category}</span>
+                        <span class="text-amber-600 font-extrabold flex items-center space-x-1">
+                            <span>Agregar</span>
+                            <i class="fa-solid fa-circle-plus"></i>
+                        </span>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            if (list.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-300">
+                        <i class="fa-solid fa-utensils text-3xl mb-2 block"></i>
+                        <p class="text-xs">No se encontraron productos.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function filterProductsSearch(value) {
+            searchQuery = value;
+            renderProductsGrid();
+        }
+
+        // --- STREAMING_CHUNK: Procesando modificaciones al carrito de compras... ---
+        // SHOPPING CART LOGIC PER TABLE
+        function addItemToOrder(product) {
+            if (!tableOrders[currentActiveTable]) {
+                tableOrders[currentActiveTable] = [];
+            }
+
+            const existingIndex = tableOrders[currentActiveTable].findIndex(item => item.product.id === product.id);
+
+            if (existingIndex > -1) {
+                tableOrders[currentActiveTable][existingIndex].qty += 1;
+            } else {
+                tableOrders[currentActiveTable].push({
+                    product: product,
+                    qty: 1,
+                    notes: ''
+                });
+            }
+
+            showToast(`Se agregó ${product.name}`, 'success');
+            saveAndSync();
+        }
+
+        function changeQty(index, amount) {
+            const orderList = tableOrders[currentActiveTable];
+            if (!orderList[index]) return;
+
+            orderList[index].qty += amount;
+
+            if (orderList[index].qty <= 0) {
+                const removedName = orderList[index].product.name;
+                orderList.splice(index, 1);
+                showToast(`Se eliminó ${removedName}`, 'info');
+            }
+
+            saveAndSync();
+        }
+
+        function addNotes(index, text) {
+            const orderList = tableOrders[currentActiveTable];
+            if (orderList[index]) {
+                orderList[index].notes = text;
+                localStorage.setItem('qh_table_orders_v4', JSON.stringify(tableOrders));
+            }
+        }
+
+        function deleteCartItem(index) {
+            const orderList = tableOrders[currentActiveTable];
+            if (orderList[index]) {
+                const removedName = orderList[index].product.name;
+                orderList.splice(index, 1);
+                showToast(`Se quitó ${removedName}`, 'info');
+                saveAndSync();
+            }
+        }
+
+        function clearCurrentOrder() {
+            if (tableOrders[currentActiveTable] && tableOrders[currentActiveTable].length > 0) {
+                tableOrders[currentActiveTable] = [];
+                showToast(`Se vació la cuenta de ${currentActiveTable}`, 'info');
+                saveAndSync();
+            }
+        }
+
+        function saveAndSync() {
+            localStorage.setItem('qh_table_orders_v4', JSON.stringify(tableOrders));
+            renderTablesSelector();
+            renderInvoiceSummary();
+        }
+
+        // --- STREAMING_CHUNK: Renderizando el cálculo de cuenta (Sin IVA ni Propina)... ---
+        // CALCULATION LOGIC (NET VALUE ONLY)
+        let computedInvoiceResult = { subtotal: 0, total: 0 };
+
+        function renderInvoiceSummary() {
+            const container = document.getElementById('invoice-items-container');
+            const emptyState = document.getElementById('empty-cart-state');
+            container.innerHTML = '';
+
+            const currentOrder = tableOrders[currentActiveTable] || [];
+
+            if (currentOrder.length === 0) {
+                emptyState.classList.remove('hidden');
+                document.getElementById('invoice-total').innerText = "$0";
+                computedInvoiceResult = { subtotal: 0, total: 0 };
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            let subtotal = 0;
+
+            currentOrder.forEach((item, index) => {
+                const itemTotal = item.product.price * item.qty;
+                subtotal += itemTotal;
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 border border-slate-150 rounded-xl p-2.5 flex flex-col space-y-1.5 transition";
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="space-y-0.5">
+                            <h4 class="text-xs font-bold text-slate-800">${item.product.name}</h4>
+                            <span class="text-[9px] text-slate-400 font-medium">$${item.product.price.toLocaleString('es-CO')} c/u</span>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="text-xs font-extrabold text-slate-700">$${itemTotal.toLocaleString('es-CO')}</span>
+                            <button onclick="deleteCartItem(${index})" class="text-slate-400 hover:text-rose-500 p-1 text-[11px] transition">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Notes / Controls Row -->
+                    <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/60">
+                        <input onchange="addNotes(${index}, this.value)" type="text" placeholder="Sin cebolla, bien tostado..." value="${item.notes}" class="flex-grow bg-transparent text-[9px] text-slate-500 placeholder-slate-300 border-none outline-none focus:ring-0 px-0 font-medium">
+                        
+                        <!-- Qty controllers -->
+                        <div class="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden">
+                            <button onclick="changeQty(${index}, -1)" class="px-2 py-0.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 text-[10px] transition font-bold">-</button>
+                            <span class="px-2 py-0.5 text-[10px] font-black text-amber-500">${item.qty}</span>
+                            <button onclick="changeQty(${index}, 1)" class="px-2 py-0.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 text-[10px] transition font-bold">+</button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            computedInvoiceResult = { subtotal: subtotal, total: subtotal };
+            document.getElementById('invoice-total').innerText = `$${subtotal.toLocaleString('es-CO')}`;
+        }
+
+        // --- STREAMING_CHUNK: Manejando adiciones de ítems personalizados... ---
+        // MANUAL CUSTOM ITEM MODAL LOADER
+        function openCustomItemModal() {
+            document.getElementById('manual-name-input').value = '';
+            document.getElementById('manual-price-input').value = '';
+            document.getElementById('manual-qty-input').value = '1';
+            openModal('modal-custom-item');
+        }
+
+        function addManualItemToOrder() {
+            const name = document.getElementById('manual-name-input').value.trim();
+            const price = parseFloat(document.getElementById('manual-price-input').value);
+            const qty = parseInt(document.getElementById('manual-qty-input').value);
+
+            if (!name || isNaN(price) || price <= 0 || isNaN(qty) || qty <= 0) {
+                showToast("Datos inválidos, completa los campos", "error");
+                return;
+            }
+
+            const customProduct = {
+                id: "MAN-" + Date.now(),
+                name: name,
+                price: price,
+                category: "Manual",
+                description: "Ítem manual registrado directamente en POS",
+                emoji: "🍳"
+            };
+
+            if (!tableOrders[currentActiveTable]) {
+                tableOrders[currentActiveTable] = [];
+            }
+
+            tableOrders[currentActiveTable].push({
+                product: customProduct,
+                qty: qty,
+                notes: 'Ítem Especial'
+            });
+
+            closeModal('modal-custom-item');
+            showToast(`Especial: ${name} agregado`, 'success');
+            saveAndSync();
+        }
+
+        // --- STREAMING_CHUNK: Creando el procesador de pasarela y vuelto en efectivo... ---
+        // PAYMENT GATEWAY CALCULATIONS
+        function triggerPaymentModal() {
+            const currentOrder = tableOrders[currentActiveTable] || [];
+            if (currentOrder.length === 0) {
+                showToast("La cuenta de esta mesa está vacía.", "error");
+                return;
+            }
+
+            document.getElementById('payment-modal-total').innerText = `$${computedInvoiceResult.total.toLocaleString('es-CO')}`;
+
+            document.getElementById('cash-given-input').value = '';
+            document.getElementById('cash-change-display').innerText = "$0";
+
+            selectPaymentMethod('Efectivo');
+            generateCashPresets();
+
+            openModal('modal-payment');
+        }
+
+        function generateCashPresets() {
+            const container = document.getElementById('cash-presets');
+            container.innerHTML = '';
+
+            const total = computedInvoiceResult.total;
+            if (total <= 0) return;
+
+            const bills = [20000, 50000, 100000];
+            const presets = [total];
+
+            bills.forEach(bill => {
+                if (bill > total && presets.length < 4) {
+                    presets.push(bill);
+                }
+            });
+
+            if (presets.length < 3) {
+                presets.push(Math.ceil(total / 10000) * 10000);
+            }
+
+            [...new Set(presets)].slice(0, 4).forEach(amount => {
+                const btn = document.createElement('button');
+                btn.className = "flex-1 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold rounded-lg border border-slate-200 transition";
+                btn.onclick = () => {
+                    document.getElementById('cash-given-input').value = amount;
+                    calculateExchange(amount);
+                };
+                btn.innerText = amount === total ? "Exacto" : `$${amount.toLocaleString('es-CO')}`;
+                container.appendChild(btn);
+            });
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            
+            const methods = ['Efectivo', 'Nequi-Daviplata', 'Tarjeta'];
+            methods.forEach(m => {
+                const normalized = m.replace('/', '-');
+                const element = document.getElementById(`pay-${normalized}`);
+                
+                if (m.includes(method) || method.includes(m)) {
+                    element.className = "payment-method-btn py-3 border border-amber-500 bg-amber-50 text-amber-600 rounded-xl flex flex-col items-center justify-center font-bold text-xs space-y-1 transition";
+                } else {
+                    element.className = "payment-method-btn py-3 border border-slate-200 bg-slate-50 text-slate-500 rounded-xl flex flex-col items-center justify-center font-bold text-xs space-y-1 transition";
+                }
+            });
+
+            const helper = document.getElementById('cash-helper-panel');
+            if (method === 'Efectivo') {
+                helper.classList.remove('hidden');
+            } else {
+                helper.classList.add('hidden');
+            }
+        }
+
+        function calculateExchange(cashGivenStr) {
+            const given = parseFloat(cashGivenStr);
+            const total = computedInvoiceResult.total;
+            const changeDisplay = document.getElementById('cash-change-display');
+
+            if (isNaN(given) || given < total) {
+                changeDisplay.innerText = "$0";
+                changeDisplay.className = "bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-sm text-rose-500 font-bold";
+                return;
+            }
+
+            const change = given - total;
+            changeDisplay.innerText = `$${change.toLocaleString('es-CO')}`;
+            changeDisplay.className = "bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-sm text-emerald-600 font-black animate-pulse";
+        }
+
+        // --- STREAMING_CHUNK: Creando el generador e impresión de facturas físicas... ---
+        // PROCESS AND SAVE SALE IN LOCALSTORAGE LOG
+        function processFinalInvoice() {
+            const activeTableCart = tableOrders[currentActiveTable] || [];
+            if (activeTableCart.length === 0) return;
+
+            const cashGivenInput = document.getElementById('cash-given-input').value;
+            let cashGivenVal = selectedPaymentMethod === 'Efectivo' ? parseFloat(cashGivenInput) : computedInvoiceResult.total;
+
+            if (selectedPaymentMethod === 'Efectivo' && (isNaN(cashGivenVal) || cashGivenVal < computedInvoiceResult.total)) {
+                showToast("El monto entregado es insuficiente.", "error");
+                return;
+            }
+
+            const invoiceId = `POS-${salesHistory.length + 12001}`;
+            const currentSedeName = currentUserRole === 'arboleda' ? "Sede Arboleda (Trailer)" : "Sede Rincón (Local)";
+            
+            const todayRaw = getCustomLocaleDate(0);
+
+            const finalInvoice = {
+                id: invoiceId,
+                datetime: `${todayRaw}, ${new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}`,
+                rawDate: todayRaw,
+                sedeId: currentUserRole === 'arboleda' ? 1 : 2,
+                sedeName: currentSedeName,
+                tableName: currentActiveTable,
+                paymentMethod: selectedPaymentMethod,
+                total: computedInvoiceResult.total,
+                cashGiven: cashGivenVal,
+                cashChange: selectedPaymentMethod === 'Efectivo' ? (cashGivenVal - computedInvoiceResult.total) : 0,
+                items: activeTableCart.map(i => ({
+                    id: i.product.id,
+                    name: i.product.name,
+                    price: i.product.price,
+                    qty: i.qty,
+                    notes: i.notes
+                }))
+            };
+
+            salesHistory.push(finalInvoice);
+            localStorage.setItem('qh_sales_history_v4', JSON.stringify(salesHistory));
+
+            triggerReceiptLayout(finalInvoice);
+
+            tableOrders[currentActiveTable] = [];
+            saveAndSync();
+
+            closeModal('modal-payment');
+            openModal('modal-receipt');
+            showToast(`Factura ${invoiceId} registrada`, "success");
+        }
+
+        function triggerReceiptLayout(invoiceObj) {
+            document.getElementById('receipt-sede-address').innerText = invoiceObj.sedeName;
+            document.getElementById('receipt-invoice-num').innerText = `Factura: ${invoiceObj.id}`;
+            document.getElementById('receipt-datetime').innerText = `Fecha: ${invoiceObj.datetime}`;
+            document.getElementById('receipt-table-info').innerText = invoiceObj.tableName;
+
+            const container = document.getElementById('receipt-items-list');
+            container.innerHTML = '';
+
+            invoiceObj.items.forEach(item => {
+                const line = document.createElement('div');
+                line.className = "grid grid-cols-12 text-[9px] py-0.5 border-b border-slate-100 text-slate-900";
+                line.innerHTML = `
+                    <div class="col-span-6">
+                        <span class="font-bold text-slate-950">${item.name}</span>
+                        ${item.notes ? `<p class="text-[7px] text-slate-500 font-normal leading-tight italic">* ${item.notes}</p>` : ''}
+                    </div>
+                    <span class="col-span-2 text-center text-slate-800 font-semibold">${item.qty}</span>
+                    <span class="col-span-4 text-right font-bold text-slate-950">$${(item.price * item.qty).toLocaleString('es-CO')}</span>
+                `;
+                container.appendChild(line);
+            });
+
+            document.getElementById('receipt-total').innerText = `$${invoiceObj.total.toLocaleString('es-CO')}`;
+            document.getElementById('receipt-pay-method').innerText = invoiceObj.paymentMethod;
+            document.getElementById('receipt-cash-given').innerText = `$${invoiceObj.cashGiven.toLocaleString('es-CO')}`;
+            document.getElementById('receipt-cash-change').innerText = `$${invoiceObj.cashChange.toLocaleString('es-CO')}`;
+        }
+
+        // --- STREAMING_CHUNK: Lógica de filtros de fecha para el administrador... ---
+        // DATE RANGE CHECKERS
+        function updateDateShortcutFilter(shortcut) {
+            currentAdminDateFilter = shortcut;
+            const customInput = document.getElementById('filter-specific-date');
+            
+            if (shortcut === 'custom') {
+                customInput.classList.remove('hidden');
+            } else {
+                customInput.classList.add('hidden');
+                filterAdminDashboard();
+            }
+        }
+
+        function triggerCustomDateFilter() {
+            filterAdminDashboard();
+        }
+
+        // Core filter aggregator for Dashboard
+        function filterAdminDashboard() {
+            const shortcut = currentAdminDateFilter;
+            const specificDateVal = document.getElementById('filter-specific-date').value;
+            const sedeValue = document.getElementById('filter-sede-select').value;
+            const paymentValue = document.getElementById('filter-payment-select').value;
+
+            const todayStr = getCustomLocaleDate(0);
+            const yesterdayStr = getCustomLocaleDate(1);
+            
+            // Build range for last 7 days
+            const last7DaysList = [];
+            for (let i = 0; i < 7; i++) {
+                last7DaysList.push(getCustomLocaleDate(i));
+            }
+
+            // Begin filtering Array
+            let filtered = [...salesHistory];
+
+            // 1. Date filter implementation
+            let dateLabelText = "";
+            if (shortcut === 'today') {
+                filtered = filtered.filter(v => v.rawDate === todayStr);
+                dateLabelText = `Hoy (${todayStr})`;
+            } else if (shortcut === 'yesterday') {
+                filtered = filtered.filter(v => v.rawDate === yesterdayStr);
+                dateLabelText = `Ayer (${yesterdayStr})`;
+            } else if (shortcut === 'week') {
+                filtered = filtered.filter(v => last7DaysList.includes(v.rawDate));
+                dateLabelText = "Últimos 7 días";
+            } else if (shortcut === 'custom' && specificDateVal) {
+                // convert input date (YYYY-MM-DD) to format (DD/MM/YYYY)
+                const parts = specificDateVal.split('-');
+                if (parts.length === 3) {
+                    const mappedInputDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    filtered = filtered.filter(v => v.rawDate === mappedInputDate);
+                    dateLabelText = `Fecha: ${mappedInputDate}`;
+                }
+            } else {
+                dateLabelText = "Histórico Completo";
+            }
+
+            // 2. Sede filter
+            if (sedeValue !== 'all') {
+                const targetSedeId = parseInt(sedeValue);
+                filtered = filtered.filter(v => v.sedeId === targetSedeId);
+            }
+
+            // 3. Payment Method filter
+            if (paymentValue !== 'all') {
+                filtered = filtered.filter(v => v.paymentMethod === paymentValue);
+            }
+
+            // Update UI indicators
+            document.getElementById('stat-label-date').innerText = dateLabelText;
+
+            // Compute statistics with filtered sales subset
+            updateDashboardMetrics(filtered);
+            renderSalesHistory(filtered.slice().reverse());
+        }
+
+        // --- STREAMING_CHUNK: Calculando métricas en base al subset filtrado... ---
+        // METRICS CALCULATOR
+        function updateDashboardMetrics(subset) {
+            let totalCombined = 0;
+            let arboledaTotal = 0;
+            let rinconTotal = 0;
+            let totalInvoices = subset.length;
+
+            let payCash = 0;
+            let payNequi = 0;
+            let payCard = 0;
+
+            subset.forEach(v => {
+                totalCombined += v.total;
+                if (v.sedeId === 1) {
+                    arboledaTotal += v.total;
+                } else if (v.sedeId === 2) {
+                    rinconTotal += v.total;
+                }
+
+                if (v.paymentMethod === 'Efectivo') payCash += v.total;
+                if (v.paymentMethod === 'Nequi/Daviplata') payNequi += v.total;
+                if (v.paymentMethod === 'Tarjeta') payCard += v.total;
+            });
+
+            const percentArboleda = totalCombined > 0 ? Math.round((arboledaTotal / totalCombined) * 100) : 0;
+            const percentRincon = totalCombined > 0 ? Math.round((rinconTotal / totalCombined) * 100) : 0;
+            const avgTicket = totalInvoices > 0 ? Math.round(totalCombined / totalInvoices) : 0;
+
+            document.getElementById('stat-total-sales').innerText = `$${totalCombined.toLocaleString('es-CO')}`;
+            document.getElementById('stat-arboleda-sales').innerText = `$${arboledaTotal.toLocaleString('es-CO')}`;
+            document.getElementById('stat-rincon-sales').innerText = `$${rinconTotal.toLocaleString('es-CO')}`;
+            
+            document.getElementById('stat-arboleda-percent').innerText = `${percentArboleda}% de esta selección`;
+            document.getElementById('stat-rincon-percent').innerText = `${percentRincon}% de esta selección`;
+            
+            document.getElementById('stat-invoice-count').innerText = totalInvoices;
+            document.getElementById('stat-avg-ticket').innerText = `Ticket Prom: $${avgTicket.toLocaleString('es-CO')}`;
+
+            document.getElementById('payment-cash-total').innerText = `$${payCash.toLocaleString('es-CO')}`;
+            document.getElementById('payment-nequi-total').innerText = `$${payNequi.toLocaleString('es-CO')}`;
+            document.getElementById('payment-card-total').innerText = `$${payCard.toLocaleString('es-CO')}`;
+        }
+
+        // --- STREAMING_CHUNK: Desplegando el log de ventas e historial... ---
+        // HISTORICAL LOG TABLE
+        function renderSalesHistory(listToUse) {
+            const tbody = document.getElementById('sales-history-tbody');
+            const placeholder = document.getElementById('empty-history-state');
+            tbody.innerHTML = '';
+
+            if (listToUse.length === 0) {
+                placeholder.classList.remove('hidden');
+                return;
+            }
+
+            placeholder.classList.add('hidden');
+
+            listToUse.forEach(invoice => {
+                const tr = document.createElement('tr');
+                tr.className = "text-xs text-slate-600 border-b border-slate-200/60 hover:bg-slate-100/50 transition animate-fade-in font-medium";
+                
+                const badgeColor = invoice.sedeId === 1 ? 'bg-teal-50 text-teal-600 border-teal-100' : 'bg-rose-50 text-rose-600 border-rose-100';
+
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-slate-800">${invoice.id}</td>
+                    <td class="p-3 text-slate-400 font-semibold">${invoice.datetime}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[9px] border ${badgeColor} font-bold">${invoice.sedeId === 1 ? 'Arboleda' : 'Rincón'}</span>
+                    </td>
+                    <td class="p-3 text-slate-600 font-bold">${invoice.tableName}</td>
+                    <td class="p-3 text-slate-400 text-[10px] font-bold">
+                        <i class="fa-solid ${invoice.paymentMethod === 'Efectivo' ? 'fa-money-bill-1 text-emerald-500' : invoice.paymentMethod === 'Tarjeta' ? 'fa-credit-card text-sky-500' : 'fa-mobile-screen text-amber-500'} mr-1"></i>
+                        <span>${invoice.paymentMethod}</span>
+                    </td>
+                    <td class="p-3 text-right font-black text-slate-800">$${invoice.total.toLocaleString('es-CO')}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="reprintInvoiceFromLog('${invoice.id}')" class="text-xs text-slate-400 hover:text-amber-500 p-1.5 transition" title="Ver / Reimprimir">
+                            <i class="fa-solid fa-print"></i>
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function reprintInvoiceFromLog(invoiceId) {
+            const invoice = salesHistory.find(i => i.id === invoiceId);
+            if (invoice) {
+                triggerReceiptLayout(invoice);
+                openModal('modal-receipt');
+            }
+        }
+
+        // --- STREAMING_CHUNK: Integrando confirmación interactiva limpia... ---
+        // NON-BLOCKING CUSTOM CONFIRMATION MODALS (NO WINDOW.CONFIRM)
+        function openConfirmClearModal() {
+            if (salesHistory.length === 0) {
+                showToast("El historial ya está vacío", "info");
+                return;
+            }
+            
+            document.getElementById('confirm-modal-title').innerText = "¿Vaciar todo el Historial?";
+            document.getElementById('confirm-modal-description').innerText = "Esta acción eliminará de forma irreversible el registro consolidado de ventas del restaurante.";
+            
+            const btnAction = document.getElementById('confirm-btn-action');
+            btnAction.onclick = () => {
+                salesHistory = [];
+                localStorage.setItem('qh_sales_history_v4', JSON.stringify(salesHistory));
+                showToast("Historial de ventas borrado", "info");
+                filterAdminDashboard();
+                closeModal('modal-confirm');
+            };
+
+            openModal('modal-confirm');
+        }
+
+        function exportSalesCSV() {
+            if (salesHistory.length === 0) {
+                showToast("No hay datos para exportar", "error");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Factura,Sede,Mesa,Fecha,Metodo de Pago,Total Recaudado\n";
+
+            salesHistory.forEach(v => {
+                const line = `"${v.id}","${v.sedeName}","${v.tableName}","${v.datetime}","${v.paymentMethod}",${v.total}\n`;
+                csvContent += line;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Ventas_QuillaHouse_${new Date().toLocaleDateString('es-CO')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Reporte descargado correctamente", "success");
+        }
+
+        // --- STREAMING_CHUNK: Implementando la llamada directa a la API de Gemini... ---
+        // GENERAL GEMINI API INTEGRATOR
+        async function fetchGeminiInsight(systemPrompt, userQuery) {
+            const savedKey = localStorage.getItem('qh_gemini_api_key') || "";
+            // If empty, Canvas will handle the authorization header in runtime internally if supported, or require the user key.
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${savedKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                }
+            };
+
+            let delay = 1000;
+            const maxRetries = 3;
+
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const textResult = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (textResult) {
+                        return textResult;
+                    }
+                    throw new Error("No text response from Gemini model");
+                } catch (error) {
+                    if (i === maxRetries - 1) {
+                        throw error;
+                    }
+                    // Exponential backoff delay
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        // --- STREAMING_CHUNK: Creando el módulo de maridaje inteligente para meseros... ---
+        // GEMINI POS UPSELL RECOMMENDATIONS
+        async function getAiUpsellRecommendation() {
+            const currentOrder = tableOrders[currentActiveTable] || [];
+            if (currentOrder.length === 0) {
+                showToast("Agrega algunos productos al carrito primero para analizarlos.", "info");
+                return;
+            }
+
+            const aiBox = document.getElementById('ai-upsell-box');
+            const aiContent = document.getElementById('ai-upsell-content');
+
+            aiBox.classList.remove('hidden');
+            aiContent.innerHTML = `
+                <div class="flex items-center space-x-2 py-2">
+                    <svg class="animate-spin h-4 w-4 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-xs font-semibold text-amber-800">Pensando el maridaje perfecto para tu mesa...</span>
+                </div>
+            `;
+
+            const parsedCart = currentOrder.map(item => `${item.qty}x ${item.product.name} (Adiciones/Notas: ${item.notes || 'Ninguna'})`).join(', ');
+            const currentSedeContext = currentUserRole === 'arboleda' ? "Sede Arboleda (Food Trailer, enfocado en comidas rápidas)" : "Sede Rincón (Local de Piedra Pintada, con pescados, ceviches y parilla)";
+
+            const systemPrompt = `Eres el sommelier y asistente experto en ventas para el restaurante Quilla House. 
+            Tu rol es leer lo que el cliente tiene en su carrito actual y sugerirle un maridaje estratégico y muy persuasivo utilizando los productos de la carta correspondientes. 
+            No inventes productos inexistentes. 
+            Recuerda que la Sede Arboleda tiene salchipapas, hamburguesas y perros. La Sede Rincón tiene carnes, ceviche camarón, entradas con suero y bebidas premium como limonadas especiales (coco, cerezada) y cervezas (corona, costeñita, nacional).
+            Háblale al operador en un tono caribeño, costeño, amable, vendedor y directo. Redacta la sugerencia en máximo 2 o 3 líneas informales y convincentes. No menciones impuestos ni propinas.`;
+
+            const query = `El cliente en la mesa de la ${currentSedeContext} tiene en su carrito: [ ${parsedCart} ]. ¿Qué bebida, entrada o adición ideal de nuestra carta deberíamos sugerirle para mejorar su experiencia y aumentar el ticket?`;
+
+            try {
+                const responseText = await fetchGeminiInsight(systemPrompt, query);
+                aiContent.innerHTML = `<p class="whitespace-pre-line">${responseText}</p>`;
+            } catch (error) {
+                console.error(error);
+                aiContent.innerHTML = `<span class="text-rose-500 font-semibold"><i class="fa-solid fa-circle-exclamation mr-1"></i> No se pudo obtener la recomendación AI. Verifica tu conexión o ingresa tu API Key en la barra superior.</span>`;
+            }
+        }
+
+        function hideAiUpsellBox() {
+            document.getElementById('ai-upsell-box').classList.add('hidden');
+        }
+
+        // --- STREAMING_CHUNK: Creando el módulo de analítica estratégica para administradores... ---
+        // GEMINI ADMIN ANALYTICS COMMANDS
+        async function askGeminiAdmin(type) {
+            const badge = document.getElementById('ai-status-badge');
+            const container = document.getElementById('ai-response-container');
+
+            badge.innerText = "Consultando...";
+            badge.className = "bg-amber-100 text-amber-600 border border-amber-200 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase animate-pulse";
+
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 space-y-3">
+                    <svg class="animate-spin h-8 w-8 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-[11px] font-bold text-slate-600">Gemini está analizando los registros consolidados de facturación...</p>
+                </div>
+            `;
+
+            // Pack active sales in simple JSON to avoid payload bloat
+            const simplifiedSales = salesHistory.map(v => ({
+                id: v.id,
+                date: v.rawDate,
+                sede: v.sedeName,
+                table: v.tableName,
+                payMethod: v.paymentMethod,
+                total: v.total,
+                items: v.items.map(i => `${i.qty}x ${i.name}`)
+            }));
+
+            const salesJsonStr = JSON.stringify(simplifiedSales, null, 2);
+
+            let userQuery = "";
+            let systemPrompt = `Eres un Consultor de Negocios y Estratega de Ventas especializado en restaurantes y POS. 
+            Estás auditando la base de datos de facturas de Quilla House en Ibagué, Tolima. 
+            Tus respuestas deben ser profesionales, accionables, directas, divididas en párrafos claros o viñetas cortas. 
+            Ayuda al administrador a tomar decisiones basadas únicamente en los datos provistos en el JSON adjunto.`;
+
+            if (type === 'trend') {
+                userQuery = `Analiza detalladamente las ventas actuales y responde: ¿cuáles son los productos más vendidos según el historial adjunto y qué estrategias de marketing o combos cruzados propones para aumentar el ticket promedio de inmediato? Base de datos:\n${salesJsonStr}`;
+            } else if (type === 'promo') {
+                userQuery = `Identifica cuál es la sede (Sede Arboleda Food Trailer o Sede Rincón Local) que presenta menor recaudación acumulada en los datos, y redacta 2 propuestas de textos persuasivos listos para publicar en Instagram o WhatsApp con promociones exclusivas para levantar las ventas de esa sede este fin de semana. Base de datos:\n${salesJsonStr}`;
+            } else if (type === 'performance') {
+                userQuery = `Compara el volumen de ingresos y ticket promedio de la Sede Arboleda (Food Trailer) contra la Sede Rincón (Local) con base en la información registrada en el POS. Indica las fortalezas de cada punto de venta y sugiere 3 mejoras clave de rentabilidad. Base de datos:\n${salesJsonStr}`;
+            } else {
+                // Custom prompt from text area
+                const customText = document.getElementById('admin-custom-query').value.trim();
+                if (!customText) {
+                    showToast("Por favor redacta tu pregunta personalizada primero", "error");
+                    badge.innerText = "Listo";
+                    badge.className = "bg-slate-100 text-slate-500 border border-slate-200 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase";
+                    renderEmptyAiAdminState();
+                    return;
+                }
+                userQuery = `${customText}\n\nAnaliza esta consulta con respecto a las siguientes ventas:\n${salesJsonStr}`;
+            }
+
+            try {
+                const responseText = await fetchGeminiInsight(systemPrompt, userQuery);
+                container.innerHTML = `
+                    <div class="space-y-4 text-xs leading-relaxed text-slate-700">
+                        <div class="p-3 bg-amber-50/50 border border-amber-200/50 rounded-xl flex items-start space-x-2">
+                            <span class="text-lg">🎯</span>
+                            <div>
+                                <h5 class="font-bold text-amber-800">Análisis Consolidado AI</h5>
+                                <p class="text-[10px] text-slate-500 mt-0.5">Reporte dinámico generado con Gemini 3.1 Flash</p>
+                            </div>
+                        </div>
+                        <div class="whitespace-pre-line bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm font-medium text-slate-800">${responseText}</div>
+                    </div>
+                `;
+                badge.innerText = "Completo";
+                badge.className = "bg-emerald-100 text-emerald-700 border border-emerald-200 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase";
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 text-rose-500 space-y-2">
+                        <i class="fa-solid fa-circle-exclamation text-3xl"></i>
+                        <p class="text-xs font-bold text-center">Error al procesar la solicitud con la API de Gemini.</p>
+                        <p class="text-[10px] text-slate-400 max-w-xs text-center">Por favor, asegúrese de que su API Key sea válida o configúrela haciendo clic en el botón 'API Key' de la cabecera superior.</p>
+                    </div>
+                `;
+                badge.innerText = "Error";
+                badge.className = "bg-rose-100 text-rose-700 border border-rose-200 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase";
+            }
+        }
+
+        function renderEmptyAiAdminState() {
+            const container = document.getElementById('ai-response-container');
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 text-slate-400 space-y-2">
+                    <i class="fa-solid fa-sparkles text-4xl text-slate-200 animate-pulse"></i>
+                    <p class="text-[11px] italic font-semibold text-center">La IA está lista para procesar los datos de facturación actuales. Seleccione una consulta rápida a la izquierda.</p>
+                </div>
+            `;
+        }
+
+        // --- STREAMING_CHUNK: Implementando controles del modal de credenciales de API... ---
+        // API KEY MANAGEMENT
+        function openApiKeyModal() {
+            const savedKey = localStorage.getItem('qh_gemini_api_key') || "";
+            document.getElementById('gemini-api-key-input').value = savedKey;
+            openModal('modal-api-key');
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('gemini-api-key-input').value.trim();
+            localStorage.setItem('qh_gemini_api_key', key);
+            showToast("API Key de Gemini guardada correctamente", "success");
+            closeModal('modal-api-key');
+        }
+
+        function clearApiKey() {
+            localStorage.removeItem('qh_gemini_api_key');
+            document.getElementById('gemini-api-key-input').value = '';
+            showToast("API Key de Gemini eliminada de la memoria local", "info");
+            closeModal('modal-api-key');
+        }
+
+        // VISUAL MODAL CONTROLLERS
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // TOAST NOTIFICATIONS ENGINE
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgStyles = "bg-white border border-slate-200 text-slate-800 shadow-lg";
+            let icon = '<i class="fa-solid fa-circle-info text-blue-500"></i>';
+
+            if (type === 'success') {
+                bgStyles = "bg-emerald-50 border border-emerald-200 text-emerald-800 shadow-md";
+                icon = '<i class="fa-solid fa-circle-check text-emerald-500"></i>';
+            } else if (type === 'error') {
+                bgStyles = "bg-rose-50 border border-rose-200 text-rose-800 shadow-md";
+                icon = '<i class="fa-solid fa-circle-exclamation text-rose-500"></i>';
+            }
+
+            toast.className = `p-3 rounded-xl shadow-lg flex items-center space-x-2.5 text-xs font-semibold pointer-events-auto transition duration-300 transform translate-y-2 opacity-0 max-w-sm ${bgStyles}`;
+            toast.innerHTML = `
+                ${icon}
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
